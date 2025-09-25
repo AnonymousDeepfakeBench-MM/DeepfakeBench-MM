@@ -1,0 +1,73 @@
+# model settings
+model_name: AVH-Sup
+loss_func: [cross_entropy_megammdf_weighted]
+pretrained: pretrained/self_large_vox_433h.pt
+
+# dataset selection
+train_dataset: [Mega-MMDF]
+train_batch_size: 128
+val_dataset: [Mega-MMDF]
+val_batch_size: 128
+test_dataset: [FakeAVCeleb, IDForge, LAV-DF, AVDeepfake1M, Mega-MMDF]
+test_batch_size: 128
+num_workers: 8
+#persistent_workers: true
+
+# dataset settings
+audio_conversion: Log-Mel              # audio conversion type
+audio_conversion_backend: python_speech_features
+mean: [0, 0, 0]
+std: [1, 1, 1]
+video_resolution: 256               # input frame size
+augmentations:
+#  audio_video:
+#    delay: [-0.1, 0.1]
+  video:
+    flip:
+      type: horizontal                # leave it empty to use default value: horizontal
+      prob: 0.5                       # leave it empty to use default value: 0.5
+    rotate:
+      rotate_limit: [-10, 10]         # leave it empty to use default value: [-10, 10]
+      prob: 0.5                       # leave it empty to use default value: 0.5
+    gaussian_blur:
+      blur_limit: [3, 7]              # leave it empty to use default value: [3, 7]
+      blur_prob: 0.5                  # leave it empty to use default value: 0.5
+    color:
+      brightness_limit: [-0.1, 0.1]   # leave it empty to use default value: [-0.1, 0.1]
+      contrast_limit: [-0.1, 0.1]     # leave it empty to use default value: [-0.1, 0.1]
+      prob: 0.5                       # leave it empty to use default value: 0.5
+    quality:
+      quality_lower: 40               # leave it empty to use default value: 40
+      quality_upper: 100              # leave it empty to use default value: 100
+  audio:
+    gaussian_noise:
+      min: 0.001
+      max: 0.01
+      prob: 0.5
+    pitch_shift:
+      min: -2
+      max: 2
+      prob: 0.5
+    volume_gain:
+      min: -6
+      max: 6
+      prob: 0.5
+
+
+# train settings
+num_epochs: 100
+optimizer:
+  type: adam
+  params:
+    lr: 0.001
+metric_scoring: auc
+#val_frequency: 10
+
+# other settings
+seed: 1024
+cuda: true
+cudnn: true
+lmdb: true
+
+
+
