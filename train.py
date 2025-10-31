@@ -15,12 +15,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from datasets.builder import prepare_training_data, prepare_validation_data
 from detectors import DETECTOR
-from metrics.parser import parse_metric
 from optimizers.builder import choose_optimizer
 from schedulers.builder import choose_scheduler
 from trainers.base_trainer import BaseTrainer
-from utils.init_seed import set_seed
-from utils.logger import create_logger, write_log
+from tools.init_seed import set_seed
+from tools.logger import create_logger, write_log
 
 
 def arg_parse():
@@ -116,10 +115,6 @@ def main():
                 train_data_loader.sampler.set_epoch(epoch)
 
             trainer.train_epoch(epoch=epoch)
-            # if config['rank'] == 0:
-            #     print(trainer.metric_factory.metric_records)
-            #     print(trainer.metric_factory.best_scores)
-            #     print(trainer.metric_factory.parse_metrics(include_latest=True))
 
     except Exception as e:
         logger.warning(str(e))

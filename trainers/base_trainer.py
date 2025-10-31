@@ -8,13 +8,11 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel
 from tqdm import tqdm
 
-from metrics.parser import parse_metric
-from utils.logger import write_log
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from metrics.builder import MetricBuilder
-from utils.recorder import Recorder
+from tools.logger import write_log
+from tools.recorder import Recorder
 
 
 class BaseTrainer(object):
@@ -180,7 +178,6 @@ class BaseTrainer(object):
         if self.config["ddp"]:
             dist.barrier()
 
-        print(self.config["ddp"], self.config["metric_scoring"])
         if self.config["metric_scoring"] == "loss":
             # Gather losses if ddp
             if self.config["ddp"]:
@@ -195,18 +192,7 @@ class BaseTrainer(object):
         else:
             # Gather prediction records if ddp
             if self.config["ddp"]:
-                write_log("Synchronizing prediction records...", self.logger, self.config["rank"])
-                # if self.config["rank"] == 0:
-                #     gathered_records = [None] * self.config["world_size"]
-                #     dist.gather_object(records_on_current_gpu, gathered_records, dst=0)
-                #
-                #     all_records = []
-                #     for i, record in enumerate(gathered_records):
-                #         if record is not None:
-                #             all_records.extend(record)
-                # else:
-                #     dist.gather_object(records_on_current_gpu, None, dst=0)
-
+                write_log("Prediction records synchronizing...", self.logger, self.config["rank"])
                 gathered_records = [None] * self.config["world_size"]
                 dist.all_gather_object(gathered_records, records_on_current_gpu)
                 all_records = []
@@ -215,11 +201,10 @@ class BaseTrainer(object):
                         all_records.extend(record)
 
                 dist.barrier()
-                write_log("Synchronizing prediction records [Done]", self.logger, self.config["rank"])
+                write_log("Prediction records synchronized.", self.logger, self.config["rank"])
             else:
                 all_records = records_on_current_gpu
 
-            print("update metric factory")
             # Update loss record
             # if self.config["rank"] == 0:
             self.metric_factory.update(all_records, dataset_name)
@@ -227,7 +212,6 @@ class BaseTrainer(object):
         # clear loss recorders:
         for name, recorder in val_recorder_loss.items():
             recorder.clear()
-        print(f"finish val {dataset_name}")
 
     def _val_epoch(self, epoch, iteration):
         self.model.eval()
@@ -239,24 +223,12 @@ class BaseTrainer(object):
 
         # only main proces has metric records and needs to save checkpoint
         # if self.config["rank"] == 0:
-        print("update best metric")
         update_list = self.metric_factory.update_best()
-        print("save checkpoint")
         for update_item in update_list:
             if self.config["rank"] == 0:
                 self._save_ckpt(os.path.join(self.log_dir, "checkpoints"), f"{update_item}_best")
 
         write_log(f"[Epoch {epoch} Iter {iteration + 1}/{len(self.train_data_loader)}] Validation Result:\n"
                          f"{self.metric_factory.parse_metrics(include_latest=True)}", self.logger, self.config["rank"])
-
-        # write_log(f"[Epoch {epoch} Iter {iteration + 1}/{len(self.train_data_loader)}] Validation Metric:\n"
-        #           f"{parse_metric(self.config['metric_scoring'], score_dict)}", self.logger, self.config["rank"])
-        #
-        # if self.config["rank"] == 0:
-        #     if average_score != "N/A" and self.metric_factory.update_best(self.best_average_score, average_score):
-        #         self.best_average_score = average_score
-        #         write_log(f"[Epoch {epoch} Iter {iteration + 1}/{len(self.train_data_loader)}] Achieves Best Metric:\n"
-        #                   f"{parse_metric(self.config['metric_scoring'], score_dict)}", self.logger, self.config["rank"])
-        #         self._save_ckpt(os.path.join(self.log_dir, "checkpoints"), "best")
 
         self.model.train()

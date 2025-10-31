@@ -1,10 +1,10 @@
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
-from einops import rearrange, repeat
+from einops import repeat
 
+from losses import LOSSFUNC
 from losses.abstract_loss import AbstractLoss
-from utils.registry import LOSSFUNC
 
 @LOSSFUNC.register_module(module_name="frade_center_cluster")
 class FRADECenterClusterLoss(AbstractLoss):

@@ -4,10 +4,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "backbones/av_hubert/avhubert"))
-import hubert_pretraining, hubert, hubert_asr
 from fairseq import checkpoint_utils
-
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "backbones/av_hubert"))
+from avhubert import hubert, hubert_asr, hubert_pretraining
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 

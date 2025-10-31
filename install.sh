@@ -20,6 +20,15 @@ pip install matplotlib==3.5.3
 pip install lmdb==1.7.2
 pip install audiomentations==0.32.0
 pip install python_speech_features==0.6
-pip install av==10.0.0
+# pip install av==10.0.0
+conda install av -c conda-forge
 pip install einops==0.6.1
-pip install prettytable
+pip install prettytable==3.7.0
+pip install sentencepiece==0.1.96
+pip install editdistance==0.6.0
+git clone https://github.com/facebookresearch/av_hubert.git backbones/av_hubert
+cd backbones/av_hubert
+git submodule init
+git submodule update
+pip install -e fairseq
+cd ../../

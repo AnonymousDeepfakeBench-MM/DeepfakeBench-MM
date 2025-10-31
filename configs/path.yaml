@@ -1,5 +1,5 @@
 log_dir: ./logs/
 original_dir: /share/deepfake_datasets/original/audio-video
 preprocess_dir: /share/deepfake_datasets/preproocessed/audio-video
-json_dir: /share/deepfake_datasets/rebuttal/json/audio-video
-lmdb_dir: /share/deepfake_datasets/rebuttal/lmdb/audio-video
+json_dir: /workspace/public_data/deepfake_datasets/json/audio-video
+lmdb_dir: /workspace/public_data/deepfake_datasets/lmdb/audio-video

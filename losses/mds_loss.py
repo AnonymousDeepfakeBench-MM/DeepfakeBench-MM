@@ -1,7 +1,7 @@
 import torch
 
+from losses import LOSSFUNC
 from losses.abstract_loss import AbstractLoss
-from utils.registry import LOSSFUNC
 
 @LOSSFUNC.register_module(module_name="mds_l1")
 class MDSL1(AbstractLoss):
@@ -39,8 +39,8 @@ class MDSL1WeightedFakeAVCeleb(AbstractLoss):
         Returns:
             A scalar tensor representing the cross-entropy loss.
         """
-        loss = 1 * (1 - targets) * mds_score ** 2 + \
-               12595 / 302 * targets * torch.max(0.99 - mds_score, torch.zeros_like(mds_score) ** 2)
+        loss = 12595 / 302  * (1 - targets) * mds_score ** 2 + \
+               targets * torch.max(0.99 - mds_score, torch.zeros_like(mds_score) ** 2)
 
         return loss.mean()
 
@@ -60,7 +60,7 @@ class MDSL1WeightedMegaMMDF(AbstractLoss):
         Returns:
             A scalar tensor representing the cross-entropy loss.
         """
-        loss = 1 * (1 - targets) * mds_score ** 2 + \
-               613048 / 59636 * targets * torch.max(0.99 - mds_score, torch.zeros_like(mds_score) ** 2)
+        loss = 613048 / 59636 * (1 - targets) * mds_score ** 2 + \
+               targets * torch.max(0.99 - mds_score, torch.zeros_like(mds_score) ** 2)
 
         return loss.mean()
